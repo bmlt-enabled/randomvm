@@ -3,9 +3,10 @@
   import moment from 'moment-timezone';
   import fetchJsonp from 'fetch-jsonp';
 
-  export let randomMeeting = null;
-  export let meetingsResult = null;
-  export let currentlyRefreshing = false;
+  let randomMeeting = null;
+  let meetings = null;
+  let seenMeetings = [];
+  let isLoading = false;
 
   function getAdjustedDateTime(meeting_day, meeting_time, meeting_time_zone) {
     let adjustedMeetingDay = parseInt(meeting_day) === 1 ? 7 : parseInt(meeting_day) - 1;
@@ -37,37 +38,44 @@
   }
 
   onMount(() => {
-    currentlyRefreshing = true;
+    isLoading = true;
     fetchJsonp('https://bmlt.virtual-na.org/main_server/client_interface/jsonp/?switcher=GetSearchResults&data_field_key=weekday_tinyint,start_time,time_zone,meeting_name,comments')
       .then((response) => response.json())
-      .then((meetings) => {
-        let results = [];
-        if (meetings) {
-          for (let x in meetings) {
-            let meeting_day = meetings[x]['weekday_tinyint'];
-            let meeting_time = meetings[x]['start_time'];
-            let meeting_time_zone = meetings[x]['time_zone'];
-            let start = getAdjustedDateTime(meeting_day, meeting_time, meeting_time_zone);
-            let now = moment.tz(moment.tz.guess());
+      .then((allMeetings) => {
+        meetings = [];
+        if (allMeetings) {
+          for (const meeting of allMeetings) {
+            const start = getAdjustedDateTime(meeting.weekday_tinyint, meeting.start_time, meeting.time_zone);
+            const now = moment.tz(moment.tz.guess());
             if (start.diff(now, 'minutes') >= 0 && start.diff(now, 'minutes') <= 30) {
-              results.push({ name: meetings[x]['meeting_name'], start: start.toString(), link: meetings[x]['comments'] });
+              meetings.push({ name: meeting.meeting_name, start: start.toString(), link: meeting.comments });
             }
           }
         }
-        meetingsResult = results;
-        currentlyRefreshing = false;
       })
-      .then(() => getRandomMeeting())
+      .then(() => setRandomMeeting())
+      .then(() => (isLoading = false))
       .catch((ex) => console.log('parsing failed', ex));
   });
 
-  function getRandomMeeting() {
-    randomMeeting = meetingsResult[Math.floor(Math.random() * meetingsResult.length)];
+  function setRandomMeeting() {
+    if (seenMeetings.length == meetings.length) {
+      if (seenMeetings.length > 1) {
+        // Don't show the last seen meeting again
+        seenMeetings = [seenMeetings.pop()];
+      } else {
+        seenMeetings = [];
+      }
+    }
+
+    const availableMeetings = meetings.filter((m) => !seenMeetings.includes(m));
+    randomMeeting = availableMeetings[Math.floor(Math.random() * availableMeetings.length)];
+    seenMeetings.push(randomMeeting);
   }
 </script>
 
 <main>
-  <button class="button is-fullwidth" class:is-loading={currentlyRefreshing} disabled={currentlyRefreshing} on:click={getRandomMeeting}>Get A Random Meeting</button>
+  <button class="button is-fullwidth" class:is-loading={isLoading} disabled={isLoading} on:click={setRandomMeeting}>Get A Random Meeting</button>
   {#if randomMeeting}
     <br />
     <div class="box is-shadowless has-text-centered m-0">
