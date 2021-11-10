@@ -13,21 +13,14 @@
       <h4 class="title is-4 has-text-centered">Random Virtual Meeting</h4>
       <RandomVm />
     </div>
-    <div class="empty" />
-    <footer class="footer">
-      <div class="content has-text-centered">
-        <p>
-          <a href="https://github.com/bmlt-enabled/randomvm/issues" target="_blank">Ideas?</a>
-          &#8226; Meetings are sourced from
-          <a href="https://virtual-na.org/meetings" target="_blank">https://virtual-na.org/meetings</a>
-        </p>
-      </div>
-    </footer>
+  </div>
+  <div class="container">
+    <div class="card p-5 mt-5 has-text-centered">
+      <p>
+        <a href="https://github.com/bmlt-enabled/randomvm/issues" target="_blank">Ideas?</a>
+        &#8226; Meetings sourced from
+        <a href="https://virtual-na.org/meetings" target="_blank">virtual-na.org</a>
+      </p>
+    </div>
   </div>
 </section>
-
-<style>
-  .empty {
-    margin-bottom: 3rem;
-  }
-</style>
