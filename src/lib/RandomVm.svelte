@@ -7,6 +7,7 @@
   let meetings = null;
   let seenMeetings = [];
   let isLoading = false;
+  let minMeetings = 3;
 
   function getAdjustedDateTime(meeting_day, meeting_time, meeting_time_zone) {
     let adjustedMeetingDay = parseInt(meeting_day) === 1 ? 7 : parseInt(meeting_day) - 1;
@@ -44,13 +45,17 @@
       .then((allMeetings) => {
         meetings = [];
         if (allMeetings) {
-          for (const meeting of allMeetings) {
-            const start = getAdjustedDateTime(meeting.weekday_tinyint, meeting.start_time, meeting.time_zone);
-            const now = moment.tz(moment.tz.guess());
-            if (start.diff(now, 'minutes') >= 0 && start.diff(now, 'minutes') <= 30) {
-              meetings.push({ name: meeting.meeting_name, start: start.toString(), link: meeting.comments });
+          let i = 0;
+          do {
+            for (const meeting of allMeetings) {
+              const start = getAdjustedDateTime(meeting.weekday_tinyint, meeting.start_time, meeting.time_zone);
+              const now = moment.tz(moment.tz.guess());
+              if (start.diff(now, 'minutes') >= 0 && start.diff(now, 'minutes') <= 30 + i) {
+                meetings.push({ name: meeting.meeting_name, start: start.toString(), link: meeting.comments });
+              }
             }
-          }
+            i += 10;
+          } while (meetings.length <= minMeetings);
         }
       })
       .then(() => setRandomMeeting())
