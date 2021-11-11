@@ -93,5 +93,6 @@
   .button {
     border-color: #8c9b9d;
     color: #ffffff;
+    touch-action: manipulation;
   }
 </style>
