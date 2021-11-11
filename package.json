@@ -7,7 +7,7 @@
     "preview": "svelte-kit preview",
     "lint": "prettier --check --plugin-search-dir=. ./src && svelte-check --tsconfig ./tsconfig.json && eslint --ignore-path .gitignore ./src",
     "format": "prettier --write --plugin-search-dir=. ./src",
-    "deploy": " touch ./build/.nojekyll && echo 'randomvm.org' > ./build/CNAME && npx gh-pages -d build -t true"
+    "deploy": "npm run build && touch ./build/.nojekyll && echo 'randomvm.org' > ./build/CNAME && npx gh-pages -d build -t true"
   },
   "devDependencies": {
     "@sveltejs/adapter-static": "^1.0.0-next.21",
