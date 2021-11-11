@@ -5,27 +5,31 @@
     "dev": "svelte-kit dev",
     "build": "svelte-kit build",
     "preview": "svelte-kit preview",
-    "lint": "prettier --ignore-path .gitignore --check --plugin-search-dir=. . && eslint --ignore-path .gitignore .",
-    "format": "prettier --ignore-path .gitignore --write --plugin-search-dir=. .",
+    "lint": "prettier --check --plugin-search-dir=. ./src && eslint --ignore-path .gitignore ./src",
+    "format": "prettier --write --plugin-search-dir=. ./src",
     "deploy": " touch ./build/.nojekyll && echo 'randomvm.org' > ./build/CNAME && npx gh-pages -d build -t true"
   },
   "devDependencies": {
     "@sveltejs/adapter-static": "^1.0.0-next.21",
     "@sveltejs/kit": "next",
+    "@typescript-eslint/eslint-plugin": "^5.3.1",
+    "@typescript-eslint/parser": "^5.3.1",
     "bulma": "^0.9.3",
     "bulmaswatch": "^0.8.1",
     "eslint": "^7.32.0",
     "eslint-config-prettier": "^8.3.0",
     "eslint-plugin-svelte3": "^3.2.1",
+    "fetch-jsonp": "^1.2.1",
     "gh-pages": "^3.2.3",
+    "moment": "^2.26.0",
+    "moment-timezone": "^0.5.31",
     "prettier": "^2.4.1",
     "prettier-plugin-svelte": "^2.4.0",
     "sass": "^1.42.1",
     "svelte": "^3.42.6",
     "svelte-preprocess": "^4.9.8",
-    "fetch-jsonp": "^1.2.1",
-    "moment": "^2.26.0",
-    "moment-timezone": "^0.5.31"
+    "tslib": "^2.3.1",
+    "typescript": "^4.4.4"
   },
   "type": "module"
 }
