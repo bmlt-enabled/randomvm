@@ -1,61 +1,101 @@
-<script>
+<script lang="ts">
   import { onMount } from 'svelte';
   import moment from 'moment-timezone';
   import fetchJsonp from 'fetch-jsonp';
 
-  let randomMeeting = null;
-  let meetings = null;
-  let seenMeetings = [];
+  let randomMeeting: Meeting;
+  let meetings: Meeting[];
+  let seenMeetings: Meeting[] = [];
   let isLoading = false;
-  const minMeetings = 3;
 
-  function getAdjustedDateTime(meeting_day, meeting_time, meeting_time_zone) {
-    let adjustedMeetingDay = parseInt(meeting_day) === 1 ? 7 : parseInt(meeting_day) - 1;
-    let meeting_date_time_obj;
+  interface JsonMeeting {
+    id_bigint: string;
+    meeting_name: string;
+    weekday_tinyint: string;
+    start_time: string;
+    time_zone: string;
+    comments: string;
+  }
 
-    if (!meeting_time_zone) {
-      meeting_time_zone = 'UTC';
+  class Meeting {
+    name: string;
+    startTime: moment.Moment;
+    link: string;
+
+    constructor(jsonMeeting: JsonMeeting) {
+      this.name = jsonMeeting.meeting_name;
+      this.startTime = this.getAdjustedStartTime(jsonMeeting);
+      this.link = jsonMeeting.comments;
     }
 
-    // Get an object that represents the meeting in its time zone
-    meeting_date_time_obj = moment()
-      .tz(meeting_time_zone, true)
-      .set({
-        hour: meeting_time.split(':')[0],
-        minute: meeting_time.split(':')[1],
-        second: 0
-      })
-      .isoWeekday(adjustedMeetingDay);
+    private getAdjustedStartTime(jsonMeeting: JsonMeeting): moment.Moment {
+      const adjustedDay = parseInt(jsonMeeting.weekday_tinyint) === 1 ? 7 : parseInt(jsonMeeting.weekday_tinyint) - 1;
 
-    // Convert meeting to target (local) time zone
-    meeting_date_time_obj = meeting_date_time_obj.clone().tz(moment.tz.guess());
+      // Get an object that represents the meeting in its time zone
+      let adjustedStartTime = moment()
+        .tz(jsonMeeting.time_zone || 'UTC', true)
+        .set({
+          hour: parseInt(jsonMeeting.start_time.split(':')[0]),
+          minute: parseInt(jsonMeeting.start_time.split(':')[1]),
+          second: 0
+        })
+        .isoWeekday(adjustedDay);
 
-    let now = moment.tz(moment.tz.guess());
-    if (now > meeting_date_time_obj) {
-      meeting_date_time_obj.add(1, 'weeks');
+      // Convert meeting to target (local) time zone
+      adjustedStartTime = adjustedStartTime.clone().tz(moment.tz.guess());
+
+      const now = moment.tz(moment.tz.guess());
+      if (now > adjustedStartTime) {
+        adjustedStartTime.add(1, 'weeks');
+      }
+
+      return adjustedStartTime;
     }
-
-    return meeting_date_time_obj;
   }
 
   onMount(() => {
     isLoading = true;
-    fetchJsonp('https://bmlt.virtual-na.org/main_server/client_interface/jsonp/?switcher=GetSearchResults&data_field_key=weekday_tinyint,start_time,time_zone,meeting_name,comments')
-      .then((response) => response.json())
+    fetchJsonp('https://bmlt.virtual-na.org/main_server/client_interface/jsonp/?switcher=GetSearchResults&data_field_key=id_bigint,weekday_tinyint,start_time,time_zone,meeting_name,comments')
+      .then((response) => response.json() as Promise<JsonMeeting[]>)
+      .then((jsonMeetings) => {
+        let allMeetings: Meeting[] = [];
+
+        if (jsonMeetings) {
+          for (const jsonMeeting of jsonMeetings) {
+            allMeetings.push(new Meeting(jsonMeeting));
+          }
+        }
+
+        return allMeetings;
+      })
       .then((allMeetings) => {
         meetings = [];
-        if (allMeetings) {
-          let numMinutes = 30;
-          while (meetings.length < minMeetings || numMinutes > 120) {
-            for (const meeting of allMeetings.filter((m) => !meetings.includes(m))) {
-              const start = getAdjustedDateTime(meeting.weekday_tinyint, meeting.start_time, meeting.time_zone);
-              const now = moment.tz(moment.tz.guess());
-              if (start.diff(now, 'minutes') >= 0 && start.diff(now, 'minutes') <= numMinutes) {
-                meetings.push({ name: meeting.meeting_name, start: start.toString(), link: meeting.comments });
+
+        if (!allMeetings) {
+          return;
+        }
+
+        const minMeetings = allMeetings.length < 3 ? allMeetings.length : 3;
+        let numMinutes = 30;
+        while (true) {
+          for (const meeting of allMeetings.filter((m) => !meetings.includes(m))) {
+            const now = moment.tz(moment.tz.guess());
+            const minutesUntilStart = meeting.startTime.diff(now, 'minutes');
+            if (minutesUntilStart >= 0 && minutesUntilStart <= numMinutes) {
+              meetings.push(meeting);
+              if (meetings.length >= minMeetings && numMinutes > 30) {
+                // We finally hit our minMeetings
+                break;
               }
             }
-            numMinutes += 15;
           }
+
+          if (meetings.length >= minMeetings || numMinutes > 1440) {
+            // We have hit the minMeetings or we're looking more than a day out
+            break;
+          }
+
+          numMinutes += 15;
         }
       })
       .then(() => setRandomMeeting())
@@ -63,7 +103,10 @@
       .catch((ex) => console.log('parsing failed', ex));
   });
 
-  function setRandomMeeting() {
+  function setRandomMeeting(): void {
+    console.log('hi');
+    console.log(seenMeetings.length);
+    console.log(meetings.length);
     if (seenMeetings.length == meetings.length) {
       if (seenMeetings.length > 1) {
         // Don't show the last seen meeting again
@@ -76,6 +119,9 @@
     const availableMeetings = meetings.filter((m) => !seenMeetings.includes(m));
     randomMeeting = availableMeetings[Math.floor(Math.random() * availableMeetings.length)];
     seenMeetings.push(randomMeeting);
+    console.log(randomMeeting.name);
+    console.log(randomMeeting.startTime.toString());
+    console.log(randomMeeting.link);
   }
 </script>
 
@@ -85,8 +131,10 @@
     <br />
     <div class="box is-shadowless has-text-centered m-0">
       <p class="title is-6">
-        <b>{randomMeeting.name}</b> <br />
-        {randomMeeting.start}<br />
+        <b>{randomMeeting.name}</b>
+        <br />
+        {randomMeeting.startTime.toString()}
+        <br />
         <a href={randomMeeting.link}>{randomMeeting.link}</a>
       </p>
     </div>
