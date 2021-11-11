@@ -9,7 +9,6 @@
     let isLoading = false;
 
     interface JsonMeeting {
-        id_bigint: string;
         meeting_name: string;
         weekday_tinyint: string;
         start_time: string;
@@ -55,7 +54,7 @@
 
     onMount(() => {
         isLoading = true;
-        fetchJsonp('https://bmlt.virtual-na.org/main_server/client_interface/jsonp/?switcher=GetSearchResults&data_field_key=id_bigint,weekday_tinyint,start_time,time_zone,meeting_name,comments')
+        fetchJsonp('https://bmlt.virtual-na.org/main_server/client_interface/jsonp/?switcher=GetSearchResults&data_field_key=weekday_tinyint,start_time,time_zone,meeting_name,comments')
             .then((response) => response.json() as Promise<JsonMeeting[]>)
             .then((jsonMeetings) => {
                 let allMeetings: Meeting[] = [];
