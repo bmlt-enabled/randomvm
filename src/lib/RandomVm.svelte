@@ -80,7 +80,7 @@
                     for (const meeting of allMeetings.filter((m) => !meetings.includes(m))) {
                         const now = moment.tz(moment.tz.guess());
                         const minutesUntilStart = meeting.startTime.diff(now, 'minutes');
-                        if (minutesUntilStart >= 0 && minutesUntilStart <= numMinutes) {
+                        if (minutesUntilStart >= -10 && minutesUntilStart <= numMinutes) {
                             meetings.push(meeting);
                             if (meetings.length >= minMeetings && numMinutes > 30) {
                                 // We finally hit our minMeetings
