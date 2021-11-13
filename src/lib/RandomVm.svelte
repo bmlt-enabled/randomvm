@@ -148,7 +148,7 @@
                     {#if randomMeeting}
                         <div><strong>{randomMeeting.name}</strong></div>
                         <div>{randomMeeting.startTime.toString()}</div>
-                        <div><a href={randomMeeting.link}>{randomMeeting.link}</a></div>
+                        <div class="meeting-link"><a href={randomMeeting.link}>{randomMeeting.link}</a></div>
                     {:else if meetings !== undefined}
                         <div>No meetings found for the next 24 hours.</div>
                     {/if}
@@ -169,5 +169,8 @@
         border-color: #8c9b9d;
         color: #ffffff;
         touch-action: manipulation;
+    }
+    .meeting-link {
+        word-wrap: break-word;
     }
 </style>
