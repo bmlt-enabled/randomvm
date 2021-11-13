@@ -156,7 +156,7 @@
             </div>
             <div class="box is-shadowless p-3 m-0 has-text-centered">
                 <a href="https://github.com/bmlt-enabled/randomvm/issues" target="_blank">Ideas?</a>
-                &#8226; Meetings sourced from
+                &#8226; Data from
                 <a href="https://virtual-na.org/meetings" target="_blank">virtual-na.org</a>
             </div>
         </div>
