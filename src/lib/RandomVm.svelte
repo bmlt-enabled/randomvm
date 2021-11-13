@@ -7,6 +7,7 @@
     let meetings: Meeting[];
     let seenMeetings: Meeting[] = [];
     let isLoading = false;
+    let startMoment = moment();
 
     interface JsonMeeting {
         meeting_name: string;
@@ -53,6 +54,10 @@
     }
 
     onMount(() => {
+        getMeetings();
+    });
+
+    function getMeetings(): void {
         isLoading = true;
         fetchJsonp('https://bmlt.virtual-na.org/main_server/client_interface/jsonp/?switcher=GetSearchResults&data_field_key=weekday_tinyint,start_time,time_zone,meeting_name,comments')
             .then((response) => response.json() as Promise<JsonMeeting[]>)
@@ -100,9 +105,14 @@
             .then(() => setRandomMeeting())
             .then(() => (isLoading = false))
             .catch((ex) => console.log('parsing failed', ex));
-    });
+    }
 
     function setRandomMeeting(): void {
+        if (moment().diff(startMoment, 'seconds') > 900) {
+            getMeetings();
+            startMoment = moment();
+            return;
+        }
         console.log('hi');
         console.log(seenMeetings.length);
         console.log(meetings.length);
