@@ -8,6 +8,7 @@
     let seenMeetings: Meeting[] = [];
     let isLoading = false;
     let startMoment = moment();
+    let copied = false;
 
     interface JsonMeeting {
         meeting_name: string;
@@ -133,6 +134,12 @@
         const availableMeetings = meetings.filter((m) => !seenMeetings.includes(m));
         randomMeeting = availableMeetings[Math.floor(Math.random() * availableMeetings.length)];
         seenMeetings.push(randomMeeting);
+        copied = false;
+    }
+
+    function handleCopy(url: string): void {
+        copied = true;
+        navigator.clipboard.writeText(url);
     }
 </script>
 
@@ -153,6 +160,22 @@
                         <div>No meetings found for the next 24 hours.</div>
                     {/if}
                 </div>
+                {#if randomMeeting}
+                    <div class="block has-text-centered">
+                        <button class="button is-small is-dark copy-button" on:click={() => handleCopy(randomMeeting.link)}>
+                            {#if copied}
+                                <span class="icon is-small">
+                                    <i class="fas fa-copy" />
+                                </span>
+                            {:else}
+                                <span class="icon is-small">
+                                    <i class="far fa-copy" />
+                                </span>
+                            {/if}
+                            <span>Copy Link</span>
+                        </button>
+                    </div>
+                {/if}
             </div>
             <div class="box is-shadowless p-3 m-0 has-text-centered">
                 <a href="https://github.com/bmlt-enabled/randomvm/issues" target="_blank">Ideas?</a>
@@ -172,5 +195,8 @@
     }
     .meeting-link {
         word-wrap: break-word;
+    }
+    .copy-button {
+        border: none;
     }
 </style>
