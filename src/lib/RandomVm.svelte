@@ -117,13 +117,17 @@
             return;
         }
 
-        if (seenMeetings.length == meetings.length) {
-            if (seenMeetings.length > 1) {
-                // Don't show the last seen meeting again
-                seenMeetings = [seenMeetings.pop()];
-            } else {
-                seenMeetings = [];
+        if (meetings.length) {
+            if (seenMeetings.length == meetings.length) {
+                if (seenMeetings.length > 1) {
+                    // Don't show the last seen meeting again
+                    seenMeetings = [seenMeetings.pop()];
+                } else {
+                    seenMeetings = [];
+                }
             }
+        } else {
+            randomMeeting = null;
         }
 
         const availableMeetings = meetings.filter((m) => !seenMeetings.includes(m));
@@ -132,21 +136,32 @@
     }
 </script>
 
-<main>
-    <button class="button is-fullwidth" class:is-loading={isLoading} disabled={isLoading} on:click={setRandomMeeting}>Get A Random Meeting</button>
-    {#if randomMeeting}
-        <br />
-        <div class="box is-shadowless has-text-centered m-0">
-            <p class="title is-6">
-                <b>{randomMeeting.name}</b>
-                <br />
-                {randomMeeting.startTime.toString()}
-                <br />
-                <a href={randomMeeting.link}>{randomMeeting.link}</a>
-            </p>
+<section class="section p-5">
+    <div class="container">
+        <div class="card p-5">
+            <h4 class="title is-4 has-text-centered">Random Virtual Meeting</h4>
+            <div class="block">
+                <div class="block">
+                    <button class="button is-fullwidth" class:is-loading={isLoading} disabled={isLoading} on:click={setRandomMeeting}>Get A Random Meeting</button>
+                </div>
+                <div class="block is-shadowless has-text-centered">
+                    {#if randomMeeting}
+                        <div><strong>{randomMeeting.name}</strong></div>
+                        <div>{randomMeeting.startTime.toString()}</div>
+                        <div><a href={randomMeeting.link}>{randomMeeting.link}</a></div>
+                    {:else if meetings !== undefined}
+                        <div>No meetings found for the next 24 hours.</div>
+                    {/if}
+                </div>
+            </div>
+            <div class="box is-shadowless p-3 m-0 has-text-centered">
+                <a href="https://github.com/bmlt-enabled/randomvm/issues" target="_blank">Ideas?</a>
+                &#8226; Meetings sourced from
+                <a href="https://virtual-na.org/meetings" target="_blank">virtual-na.org</a>
+            </div>
         </div>
-    {/if}
-</main>
+    </div>
+</section>
 
 <style>
     .button:focus,
