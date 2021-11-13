@@ -5,7 +5,7 @@
     "dev": "svelte-kit dev",
     "build": "svelte-kit build",
     "preview": "svelte-kit preview",
-    "lint": "prettier --check --plugin-search-dir=. ./src && svelte-check --tsconfig ./tsconfig.json && eslint --ignore-path .gitignore ./src",
+    "lint": "prettier --check --plugin-search-dir=. ./src && svelte-check --tsconfig ./tsconfig.json",
     "format": "prettier --write --plugin-search-dir=. ./src",
     "deploy": "npm run build && touch ./build/.nojekyll && echo 'randomvm.org' > ./build/CNAME && npx gh-pages -d build -t true"
   },

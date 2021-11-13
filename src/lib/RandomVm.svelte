@@ -57,54 +57,57 @@
         getMeetings();
     });
 
-    function getMeetings(): void {
-        isLoading = true;
-        fetchJsonp('https://bmlt.virtual-na.org/main_server/client_interface/jsonp/?switcher=GetSearchResults&data_field_key=weekday_tinyint,start_time,time_zone,meeting_name,comments')
-            .then((response) => response.json() as Promise<JsonMeeting[]>)
-            .then((jsonMeetings) => {
-                let allMeetings: Meeting[] = [];
+    function jsonMeetingsToMeetings(jsonMeetings: JsonMeeting[]): Meeting[] {
+        const meetings: Meeting[] = [];
+        if (jsonMeetings) {
+            for (const jsonMeeting of jsonMeetings) {
+                meetings.push(new Meeting(jsonMeeting));
+            }
+        }
+        return meetings;
+    }
 
-                if (jsonMeetings) {
-                    for (const jsonMeeting of jsonMeetings) {
-                        allMeetings.push(new Meeting(jsonMeeting));
-                    }
-                }
-
-                return allMeetings;
-            })
-            .then((allMeetings) => {
-                meetings = [];
-
-                if (!allMeetings) {
-                    return;
-                }
-
-                const minMeetings = allMeetings.length < 3 ? allMeetings.length : 3;
-                let numMinutes = 30;
-                while (true) {
-                    for (const meeting of allMeetings.filter((m) => !meetings.includes(m))) {
-                        const now = moment.tz(moment.tz.guess());
-                        const minutesUntilStart = meeting.startTime.diff(now, 'minutes');
-                        if (minutesUntilStart >= -10 && minutesUntilStart <= numMinutes) {
-                            meetings.push(meeting);
-                            if (meetings.length >= minMeetings && numMinutes > 30) {
-                                // We finally hit our minMeetings
-                                break;
-                            }
-                        }
-                    }
-
-                    if (meetings.length >= minMeetings || numMinutes > 1440) {
-                        // We have hit the minMeetings or we're looking more than a day out
+    function getEligibleMeetings(allMeetings: Meeting[]): Meeting[] {
+        const minMeetings = allMeetings.length < 3 ? allMeetings.length : 3;
+        const meetings = [];
+        let numMinutes = 30;
+        while (allMeetings.length > meetings.length) {
+            for (const meeting of allMeetings.filter((m) => !meetings.includes(m))) {
+                const now = moment.tz(moment.tz.guess());
+                const minutesUntilStart = meeting.startTime.diff(now, 'minutes');
+                if (minutesUntilStart >= -10 && minutesUntilStart <= numMinutes) {
+                    meetings.push(meeting);
+                    if (meetings.length >= minMeetings && numMinutes > 30) {
+                        // We finally hit our minMeetings
                         break;
                     }
-
-                    numMinutes += 15;
                 }
-            })
-            .then(() => setRandomMeeting())
-            .then(() => (isLoading = false))
-            .catch((ex) => console.log('parsing failed', ex));
+            }
+
+            if (meetings.length >= minMeetings || numMinutes > 1440) {
+                // We have hit the minMeetings or we're looking more than a day out
+                break;
+            }
+
+            numMinutes += 15;
+        }
+        return meetings;
+    }
+
+    async function getMeetings(): Promise<void> {
+        isLoading = true;
+        try {
+            const url = 'https://bmlt.virtual-na.org/main_server/client_interface/jsonp/?switcher=GetSearchResults&data_field_key=weekday_tinyint,start_time,time_zone,meeting_name,comments';
+            const response = await fetchJsonp(url);
+            const jsonMeetings = (await response.json()) as JsonMeeting[];
+            const allMeetings = jsonMeetingsToMeetings(jsonMeetings);
+            meetings = getEligibleMeetings(allMeetings);
+            seenMeetings = [];
+            setRandomMeeting();
+            isLoading = false;
+        } catch (error) {
+            console.log('parsing failed', error);
+        }
     }
 
     function setRandomMeeting(): void {
@@ -113,9 +116,7 @@
             startMoment = moment();
             return;
         }
-        console.log('hi');
-        console.log(seenMeetings.length);
-        console.log(meetings.length);
+
         if (seenMeetings.length == meetings.length) {
             if (seenMeetings.length > 1) {
                 // Don't show the last seen meeting again
@@ -128,9 +129,6 @@
         const availableMeetings = meetings.filter((m) => !seenMeetings.includes(m));
         randomMeeting = availableMeetings[Math.floor(Math.random() * availableMeetings.length)];
         seenMeetings.push(randomMeeting);
-        console.log(randomMeeting.name);
-        console.log(randomMeeting.startTime.toString());
-        console.log(randomMeeting.link);
     }
 </script>
 
