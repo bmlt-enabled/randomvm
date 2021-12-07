@@ -164,10 +164,7 @@
                             <h4>{randomMeeting.name}</h4>
                             <ul>
                                 <li>{randomMeeting.startTime.format('dddd')} at {randomMeeting.startTime.format('h:mma')}</li>
-                                <li class="meeting-link">
-                                    <a href={randomMeeting.link} target="_blank">{randomMeeting.link}</a>
-                                    &nbsp;<!-- this space is required to work around a text resizing bug on ios -->
-                                </li>
+                                <li class="meeting-link"><a href={randomMeeting.link} target="_blank">{randomMeeting.link}</a></li>
                                 {#if randomMeeting.info}
                                     <li>{randomMeeting.info}</li>
                                 {/if}
@@ -216,7 +213,6 @@
     .copy-button {
         border: none;
     }
-
     .randomvm {
         max-width: 700px;
     }
