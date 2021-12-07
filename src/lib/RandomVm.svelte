@@ -172,7 +172,7 @@
                 </div>
                 <div class="columns is-centered">
                     <div class="column is-half">
-                        <div class="content p-2">
+                        <div class="content p-1">
                             {#if randomMeeting}
                                 <h4>{randomMeeting.name}</h4>
                                 <ul>
