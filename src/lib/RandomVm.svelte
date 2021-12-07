@@ -172,26 +172,28 @@
                                     <li>{randomMeeting.info}</li>
                                 {/if}
                             </ul>
-                            <div class="has-text-centered">
-                                <button class="button is-small copy-button" on:click={() => handleCopy(randomMeeting.link)}>
-                                    {#if copied}
-                                        <span class="icon is-small">
-                                            <i class="fas fa-copy" />
-                                        </span>
-                                    {:else}
-                                        <span class="icon is-small">
-                                            <i class="far fa-copy" />
-                                        </span>
-                                    {/if}
-                                    <span>Copy Link</span>
-                                </button>
-                            </div>
                         {:else if meetings !== undefined}
                             No meetings found for the next 24 hours.
                         {/if}
                     </div>
                 </div>
             </div>
+            {#if randomMeeting}
+                <div class="block has-text-centered">
+                    <button class="button is-small copy-button" on:click={() => handleCopy(randomMeeting.link)}>
+                        {#if copied}
+                            <span class="icon is-small">
+                                <i class="fas fa-copy" />
+                            </span>
+                        {:else}
+                            <span class="icon is-small">
+                                <i class="far fa-copy" />
+                            </span>
+                        {/if}
+                        <span>Copy Link</span>
+                    </button>
+                </div>
+            {/if}
             <div class="box is-shadowless p-3 m-0 has-text-centered">
                 <a href="https://github.com/bmlt-enabled/randomvm/issues" target="_blank">Ideas?</a>
                 &#8226; Data from
