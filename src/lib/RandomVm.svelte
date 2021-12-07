@@ -163,27 +163,29 @@
 </script>
 
 <section class="section p-5">
-    <div class="randomvm container">
+    <div class="container is-max-desktop">
         <div class="card p-5">
             <h4 class="title is-4 has-text-centered">Random Virtual Meeting</h4>
             <div class="block">
                 <div class="block">
                     <button class="button is-fullwidth" class:is-loading={isLoading} disabled={isLoading} on:click={setRandomMeeting}>Get A Random Meeting</button>
                 </div>
-                <div class="block is-shadowless p-2">
-                    <div class="content">
-                        {#if randomMeeting}
-                            <h4>{randomMeeting.name}</h4>
-                            <ul>
-                                <li>{randomMeeting.startTime.format('dddd')} at {randomMeeting.startTime.format('h:mma')}</li>
-                                <li class="meeting-link"><a href={randomMeeting.link} target="_blank">{randomMeeting.link}</a></li>
-                                {#if randomMeeting.info}
-                                    <li>{randomMeeting.info}</li>
-                                {/if}
-                            </ul>
-                        {:else if meetings !== undefined}
-                            No meetings found for the next 24 hours.
-                        {/if}
+                <div class="columns is-centered">
+                    <div class="column is-half">
+                        <div class="content p-2">
+                            {#if randomMeeting}
+                                <h4>{randomMeeting.name}</h4>
+                                <ul>
+                                    <li>{randomMeeting.startTime.format('dddd')} at {randomMeeting.startTime.format('h:mma')}</li>
+                                    <li class="meeting-link"><a href={randomMeeting.link} target="_blank">{randomMeeting.link}</a></li>
+                                    {#if randomMeeting.info}
+                                        <li>{randomMeeting.info}</li>
+                                    {/if}
+                                </ul>
+                            {:else if meetings !== undefined}
+                                No meetings found for the next 24 hours.
+                            {/if}
+                        </div>
                     </div>
                 </div>
             </div>
@@ -224,8 +226,5 @@
     }
     .copy-button {
         border: none;
-    }
-    .randomvm {
-        max-width: 700px;
     }
 </style>
