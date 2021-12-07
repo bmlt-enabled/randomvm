@@ -71,13 +71,25 @@
         return meetings;
     }
 
+    function isValidUrl(link: string) {
+        let url: URL;
+
+        try {
+            url = new URL(link);
+        } catch (_) {
+            return false;
+        }
+
+        return url.protocol === 'http:' || url.protocol === 'https:';
+    }
+
     function getEligibleMeetings(allMeetings: Meeting[]): Meeting[] {
         const minMeetings = allMeetings.length < 3 ? allMeetings.length : 3;
         const meetings = [];
         let numMinutes = 30;
         while (allMeetings.length > meetings.length) {
             for (const meeting of allMeetings.filter((m) => !meetings.includes(m))) {
-                if (!meeting.link) {
+                if (!isValidUrl(meeting.link)) {
                     continue;
                 }
                 const now = moment.tz(moment.tz.guess());
