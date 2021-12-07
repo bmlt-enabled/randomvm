@@ -16,17 +16,20 @@
         start_time: string;
         time_zone: string;
         comments: string;
+        location_info: string;
     }
 
     class Meeting {
         name: string;
         startTime: moment.Moment;
         link: string;
+        info: string;
 
         constructor(jsonMeeting: JsonMeeting) {
             this.name = jsonMeeting.meeting_name;
             this.startTime = this.getAdjustedStartTime(jsonMeeting);
             this.link = jsonMeeting.comments;
+            this.info = jsonMeeting.location_info;
         }
 
         private getAdjustedStartTime(jsonMeeting: JsonMeeting): moment.Moment {
@@ -74,6 +77,9 @@
         let numMinutes = 30;
         while (allMeetings.length > meetings.length) {
             for (const meeting of allMeetings.filter((m) => !meetings.includes(m))) {
+                if (!meeting.link) {
+                    continue;
+                }
                 const now = moment.tz(moment.tz.guess());
                 const minutesUntilStart = meeting.startTime.diff(now, 'minutes');
                 if (minutesUntilStart >= -10 && minutesUntilStart <= numMinutes) {
@@ -98,7 +104,8 @@
     async function getMeetings(): Promise<void> {
         isLoading = true;
         try {
-            const url = 'https://bmlt.virtual-na.org/main_server/client_interface/jsonp/?switcher=GetSearchResults&data_field_key=weekday_tinyint,start_time,time_zone,meeting_name,comments';
+            const url =
+                'https://bmlt.virtual-na.org/main_server/client_interface/jsonp/?switcher=GetSearchResults&data_field_key=weekday_tinyint,start_time,time_zone,meeting_name,comments,location_info';
             const response = await fetchJsonp(url);
             const jsonMeetings = (await response.json()) as JsonMeeting[];
             const allMeetings = jsonMeetingsToMeetings(jsonMeetings);
@@ -144,38 +151,46 @@
 </script>
 
 <section class="section p-5">
-    <div class="container">
+    <div class="randomvm container">
         <div class="card p-5">
             <h4 class="title is-4 has-text-centered">Random Virtual Meeting</h4>
             <div class="block">
                 <div class="block">
                     <button class="button is-fullwidth" class:is-loading={isLoading} disabled={isLoading} on:click={setRandomMeeting}>Get A Random Meeting</button>
                 </div>
-                <div class="block is-shadowless has-text-centered">
-                    {#if randomMeeting}
-                        <div><strong>{randomMeeting.name}</strong></div>
-                        <div>{randomMeeting.startTime.toString()}</div>
-                        <div class="meeting-link"><a href={randomMeeting.link} target="_blank">{randomMeeting.link}</a></div>
-                    {:else if meetings !== undefined}
-                        <div>No meetings found for the next 24 hours.</div>
-                    {/if}
-                </div>
-                {#if randomMeeting}
-                    <div class="block has-text-centered">
-                        <button class="button is-small is-dark copy-button" on:click={() => handleCopy(randomMeeting.link)}>
-                            {#if copied}
-                                <span class="icon is-small">
-                                    <i class="fas fa-copy" />
-                                </span>
-                            {:else}
-                                <span class="icon is-small">
-                                    <i class="far fa-copy" />
-                                </span>
-                            {/if}
-                            <span>Copy Link</span>
-                        </button>
+                <div class="block is-shadowless p-2">
+                    <div class="content">
+                        {#if randomMeeting}
+                            <h4>{randomMeeting.name}</h4>
+                            <ul>
+                                <li>{randomMeeting.startTime.format('dddd')} at {randomMeeting.startTime.format('h:mma')}</li>
+                                <li class="meeting-link">
+                                    <a href={randomMeeting.link} target="_blank">{randomMeeting.link}</a>
+                                    &nbsp;<!-- this space is required to work around a text resizing bug on ios -->
+                                </li>
+                                {#if randomMeeting.info}
+                                    <li>{randomMeeting.info}</li>
+                                {/if}
+                            </ul>
+                            <div class="has-text-centered">
+                                <button class="button is-small copy-button" on:click={() => handleCopy(randomMeeting.link)}>
+                                    {#if copied}
+                                        <span class="icon is-small">
+                                            <i class="fas fa-copy" />
+                                        </span>
+                                    {:else}
+                                        <span class="icon is-small">
+                                            <i class="far fa-copy" />
+                                        </span>
+                                    {/if}
+                                    <span>Copy Link</span>
+                                </button>
+                            </div>
+                        {:else if meetings !== undefined}
+                            No meetings found for the next 24 hours.
+                        {/if}
                     </div>
-                {/if}
+                </div>
             </div>
             <div class="box is-shadowless p-3 m-0 has-text-centered">
                 <a href="https://github.com/bmlt-enabled/randomvm/issues" target="_blank">Ideas?</a>
@@ -198,5 +213,9 @@
     }
     .copy-button {
         border: none;
+    }
+
+    .randomvm {
+        max-width: 700px;
     }
 </style>
