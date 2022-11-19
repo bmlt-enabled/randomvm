@@ -16,7 +16,7 @@
         start_time: string;
         time_zone: string;
         virtual_meeting_link: string;
-        location_info: string;
+        virtual_meeting_additional_info: string;
     }
 
     class Meeting {
@@ -29,7 +29,7 @@
             this.name = jsonMeeting.meeting_name;
             this.startTime = this.getAdjustedStartTime(jsonMeeting);
             this.link = jsonMeeting.virtual_meeting_link;
-            this.info = jsonMeeting.location_info;
+            this.info = jsonMeeting.virtual_meeting_additional_info;
         }
 
         private getAdjustedStartTime(jsonMeeting: JsonMeeting): moment.Moment {
@@ -117,7 +117,7 @@
         isLoading = true;
         try {
             const url =
-                'https://bmlt.virtual-na.org/main_server/client_interface/jsonp/?switcher=GetSearchResults&data_field_key=weekday_tinyint,start_time,time_zone,meeting_name,location_info,virtual_meeting_link';
+                'https://bmlt.virtual-na.org/main_server/client_interface/jsonp/?switcher=GetSearchResults&data_field_key=weekday_tinyint,start_time,time_zone,meeting_name,virtual_meeting_additional_info,virtual_meeting_link';
             const response = await fetchJsonp(url);
             const jsonMeetings = (await response.json()) as JsonMeeting[];
             const allMeetings = jsonMeetingsToMeetings(jsonMeetings);
