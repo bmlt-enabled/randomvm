@@ -1,0 +1,29 @@
+name: main
+on:
+  push:
+    branches: ['main']
+
+jobs:
+  build-deploy:
+    runs-on: ubuntu-22.04
+    permissions:
+      contents: write
+    steps:
+      - name: checkout
+        uses: actions/checkout@v3
+
+      - name: node 16
+        uses: actions/setup-node@v3.5.1
+        with:
+          node-version: 16
+
+      - name: build 🛠
+        run: |
+          npm ci
+
+      - name: deploy 🚀
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          git remote set-url origin https://git:${GITHUB_TOKEN}@github.com/${GITHUB_REPOSITORY}.git
+          npm run deploy -- -u "fortysevenbot <fortysevenbot@bmlt.app>"
