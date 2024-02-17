@@ -3,7 +3,7 @@
     import moment from 'moment-timezone';
     import fetchJsonp from 'fetch-jsonp';
 
-    let randomMeeting: Meeting;
+    let randomMeeting: Meeting | null;
     let meetings: Meeting[];
     let seenMeetings: Meeting[] = [];
     let isLoading = false;
@@ -85,7 +85,7 @@
 
     function getEligibleMeetings(allMeetings: Meeting[]): Meeting[] {
         const minMeetings = allMeetings.length < 3 ? allMeetings.length : 3;
-        const meetings = [];
+        const meetings: Meeting[] = [];
         let numMinutes = 30;
         while (allMeetings.length > meetings.length) {
             for (const meeting of allMeetings.filter((m) => !meetings.includes(m))) {
@@ -141,7 +141,12 @@
             if (seenMeetings.length == meetings.length) {
                 if (seenMeetings.length > 1) {
                     // Don't show the last seen meeting again
-                    seenMeetings = [seenMeetings.pop()];
+                    const lastSeen = seenMeetings.pop();
+                    if (lastSeen !== undefined) {
+                        seenMeetings = [lastSeen];
+                    } else {
+                        seenMeetings = [];
+                    }
                 } else {
                     seenMeetings = [];
                 }
@@ -176,8 +181,12 @@
                             {#if randomMeeting}
                                 <h4>{randomMeeting.name}</h4>
                                 <ul>
-                                    <li>{randomMeeting.startTime.format('dddd')} at {randomMeeting.startTime.format('h:mma')}</li>
-                                    <li class="meeting-link"><a href={randomMeeting.link} target="_blank">{randomMeeting.link}</a></li>
+                                    <li>
+                                        {randomMeeting.startTime.format('dddd')} at {randomMeeting.startTime.format('h:mma')}
+                                    </li>
+                                    <li class="meeting-link">
+                                        <a href={randomMeeting.link} target="_blank">{randomMeeting.link}</a>
+                                    </li>
                                     {#if randomMeeting.info}
                                         <li>{randomMeeting.info}</li>
                                     {/if}
@@ -191,7 +200,7 @@
             </div>
             {#if randomMeeting}
                 <div class="block has-text-centered">
-                    <button class="button is-small copy-button" on:click={() => handleCopy(randomMeeting.link)}>
+                    <button class="button is-small copy-button" on:click={() => (randomMeeting ? handleCopy(randomMeeting.link) : undefined)}>
                         {#if copied}
                             <span class="icon is-small">
                                 <i class="fas fa-copy" />
