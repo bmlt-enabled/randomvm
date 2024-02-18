@@ -23,7 +23,7 @@ You can preview the built app with `npm run preview`
 
 ## Publishing (GitHub)
 
-deploys to gh-pages branch
+New deploys are done with every push to the main branch. You can deploy one manually by running:
 
 ```bash
 npm run deploy
