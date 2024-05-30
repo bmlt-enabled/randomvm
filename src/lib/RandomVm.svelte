@@ -224,11 +224,21 @@
 </section>
 
 <style>
-    .button:focus,
-    .button {
-        border-color: #8c9b9d;
-        color: #ffffff;
-        touch-action: manipulation;
+    @media (prefers-color-scheme: dark) {
+        .button:focus,
+        .button {
+            border-color: #8c9b9d;
+            color: #ffffff;
+            touch-action: manipulation;
+        }
+    }
+    @media (prefers-color-scheme: light) {
+        .button:focus,
+        .button {
+            border-color: #8c9b9d;
+            color: #000000;
+            touch-action: manipulation;
+        }
     }
     .meeting-link {
         word-wrap: break-word;
