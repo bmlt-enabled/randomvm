@@ -76,7 +76,7 @@
 
         try {
             url = new URL(link);
-        } catch (_) {
+        } catch {
             return false;
         }
 
