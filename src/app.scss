@@ -17,4 +17,4 @@
 @forward 'bulma/sass/helpers';
 @forward 'bulma/sass/layout';
 @forward 'bulma/sass/themes';
-@import 'bulma/sass/themes/dark.scss';
+@use 'bulma/sass/themes/dark.scss';
