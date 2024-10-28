@@ -3,12 +3,12 @@
     import moment from 'moment-timezone';
     import fetchJsonp from 'fetch-jsonp';
 
-    let randomMeeting: Meeting | null;
-    let meetings: Meeting[];
+    let randomMeeting: Meeting | null = $state(null);
+    let meetings: Meeting[] = $state([]);
     let seenMeetings: Meeting[] = [];
-    let isLoading = false;
+    let isLoading = $state(false);
     let startMoment = moment();
-    let copied = false;
+    let copied = $state(false);
 
     interface JsonMeeting {
         meeting_name: string;
@@ -173,7 +173,7 @@
             <h4 class="title is-4 has-text-centered">Random Virtual Meeting</h4>
             <div class="block">
                 <div class="block">
-                    <button class="button is-fullwidth" class:is-loading={isLoading} disabled={isLoading} on:click={setRandomMeeting}>Get A Random Meeting</button>
+                    <button class="button is-fullwidth" class:is-loading={isLoading} disabled={isLoading} onclick={setRandomMeeting}>Get A Random Meeting</button>
                 </div>
                 <div class="columns is-centered">
                     <div class="column is-half">
@@ -200,14 +200,14 @@
             </div>
             {#if randomMeeting}
                 <div class="block has-text-centered">
-                    <button class="button is-small copy-button" on:click={() => (randomMeeting ? handleCopy(randomMeeting.link) : undefined)}>
+                    <button class="button is-small copy-button" onclick={() => (randomMeeting ? handleCopy(randomMeeting.link) : undefined)}>
                         {#if copied}
                             <span class="icon is-small">
-                                <i class="fas fa-copy" />
+                                <i class="fas fa-copy"></i>
                             </span>
                         {:else}
                             <span class="icon is-small">
-                                <i class="far fa-copy" />
+                                <i class="far fa-copy"></i>
                             </span>
                         {/if}
                         <span>Copy Link</span>
