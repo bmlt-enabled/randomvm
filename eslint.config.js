@@ -29,5 +29,11 @@ export default [
     },
     {
         ignores: ['build/', '.svelte-kit/', 'dist/', '*.lock']
+    },
+    {
+        files: ['**/*.svelte'],
+        rules: {
+            'svelte/no-navigation-without-resolve': 'off'
+        }
     }
 ];
